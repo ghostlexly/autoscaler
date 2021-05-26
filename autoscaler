@@ -1,0 +1,98 @@
+#!/usr/bin/env bash
+# author: Tolga MALKOC | ghostlexly@gmail.com
+
+RESTORE_APP="false"
+
+# get arguments
+print_help() {
+    echo "Usage: autoscaler [--restore] application"
+    echo ""
+    echo "--restore  Restore the older binaries of an application"
+    echo "         and stop using autoscaler."
+    echo ""
+}
+
+if [ $# = 0 ]
+    then print_help
+        exit 1
+fi
+
+while true
+    do if [ $# -gt 0 ]
+        then case $1 in
+            --restore*)
+                RESTORE_APP="true"
+                shift
+            ;;
+            --)
+                shift
+                break
+            ;;
+            --*)
+                print_help
+                exit 1
+            ;;
+            *)
+                break
+            ;;
+        esac
+    else
+        echo "No application given!"
+        exit 2
+    fi
+done
+
+# functions
+restore_file() {
+    echo "Restoring the $APPLICATION_NAME app.."
+
+    if [ ! -f "$APPLICATION_PATH.ghostlexly" ]; then
+        echo "The application file $APPLICATION_PATH is not scaled !"
+        exit
+    fi
+
+    rm $APPLICATION_PATH
+    mv $APPLICATION_PATH.ghostlexly $APPLICATION_PATH
+    exit
+}
+
+# get app path
+APPLICATION_NAME="$1"
+ESCAPED_PARAMS="${@:2}"
+APPLICATION_PATH="$(readlink -f /usr/bin/$APPLICATION_NAME)"
+
+echo "Detected application name: $APPLICATION_NAME"
+echo "Full path found: $APPLICATION_PATH"
+
+# check app file existence
+if [ ! -f $APPLICATION_PATH ]; then
+    echo "The application file $APPLICATION_PATH does not exist !"
+    exit
+fi
+
+if [ "$RESTORE_APP" = "true" ]; then
+    restore_file
+fi
+
+# check if it's already autoscaled
+if [ -f "$APPLICATION_PATH.ghostlexly" ]; then
+    echo "The application file $APPLICATION_PATH is already scaled !"
+    exit
+fi
+
+# backup the app
+cp $APPLICATION_PATH "$APPLICATION_PATH.ghostlexly"
+rm $APPLICATION_PATH
+
+# create the substitution
+echo "#!/usr/bin/env bash" >> $APPLICATION_PATH
+echo 'ESCAPED_PARAMS="$@"' >> $APPLICATION_PATH
+echo "exec $PWD/runtime" '"$ESCAPED_PARAMS"' "$APPLICATION_PATH.ghostlexly " >> $APPLICATION_PATH
+
+# give permissions
+chmod +x $APPLICATION_PATH
+
+# done
+echo "--------------------------"
+echo "Auto-scaling for this application is ready."
+echo "Thank you for using AutoScaler by GhostLexly - Buy me a coffee if you liked this tool."
