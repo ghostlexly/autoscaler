@@ -1,3 +1,5 @@
+![Alt text](preview.png "Preview of autoscaler for Linux")
+
 # autoscaler
 
 Run automatically your applications scaled via xpra.
