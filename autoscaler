@@ -3,6 +3,9 @@
 
 RESTORE_APP="false"
 
+# install runtime app
+cp ./runtime /usr/local/bin/autoscaler-runtime
+
 # get arguments
 print_help() {
     echo "Usage: autoscaler [--restore] application"

@@ -19,7 +19,7 @@ Usage: autoscaler [--restore] application
 
 ### create a new shortcut
 ````
-./autoscaler gimp
+sudo ./autoscaler gimp
 ````
 Your app is now scaled for all next usages. You have to restart it for the changes to take effect.
 
@@ -30,5 +30,13 @@ gimp
 
 ### remove the autoscaling shortcut
 ````
-./autoscaler --restore gimp
+sudo ./autoscaler --restore gimp
+````
+
+## Only runtime usage
+
+You can call the runtime app from anywhere with this command.
+
+````
+autoscaler-runtime /usr/bin/gimp
 ````
